@@ -1,0 +1,32 @@
+.controls {
+  position: absolute;
+  z-index: 10000;
+  padding: 10px;
+  top: 0;
+  right: 0;
+  color: white;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.controls > button {
+  cursor: pointer;
+  display: block;
+  font-size: 18px;
+  margin-bottom: 0.2em;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.controls > button:hover {
+  background-color: rgba(100, 100, 100, 0.5);
+}
+
+.controls > button:active {
+  background-color: #fff;
+  color: #222;
+}

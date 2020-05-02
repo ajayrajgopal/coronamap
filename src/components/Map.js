@@ -1,8 +1,7 @@
 import React from "react";
-import ReactMapGL from "react-map-gl";
-import { DeckGL, HexagonLayer, ArcLayer, HeatmapLayer } from "deck.gl";
+import MapGL, { NavigationControl } from "react-map-gl";
+import { DeckGL, HexagonLayer, ArcLayer } from "deck.gl";
 import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
-import { Spring } from "react-spring/renderprops";
 
 export default function Map({
   width,
@@ -143,7 +142,7 @@ export default function Map({
     ];
   }
   return (
-    <ReactMapGL
+    <MapGL
       width={width}
       height={height}
       viewState={viewState}
@@ -160,6 +159,6 @@ export default function Map({
       >
         {tooltip}
       </DeckGL>
-    </ReactMapGL>
+    </MapGL>
   );
 }

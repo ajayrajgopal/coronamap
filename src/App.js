@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./App.module.css";
 import Map from "./components/Map";
-import { FlyToInterpolator } from "react-map-gl";
+import { FlyToInterpolator, NavigationControl } from "react-map-gl";
 import { csv } from "d3";
 import GL from "@luma.gl/constants";
 
@@ -74,20 +74,45 @@ function App() {
       });
     }
   };
-
-  const changeBearing = () => {
-    console.log("called");
-    var vb = 0.1;
-    var vp = 0.01;
-    if (Math.abs(viewState.bearing) > 89) {
-      vb *= -1;
-    }
+  const turnLeft = () => {
+    const destination = {
+      bearing: viewState.bearing + 7,
+    };
     setViewState({
       ...viewState,
-      ...{ bearing: viewState.bearing + vb },
+      ...destination,
+      transitionDuration: 700,
     });
-    console.log(viewState.bearing);
-    window.requestAnimationFrame(changeBearing);
+  };
+  const turnRight = () => {
+    const destination = {
+      bearing: viewState.bearing - 7,
+    };
+    setViewState({
+      ...viewState,
+      ...destination,
+      transitionDuration: 700,
+    });
+  };
+  const turnDown = () => {
+    const destination = {
+      pitch: viewState.pitch + 7,
+    };
+    setViewState({
+      ...viewState,
+      ...destination,
+      transitionDuration: 700,
+    });
+  };
+  const turnUp = () => {
+    const destination = {
+      pitch: viewState.pitch - 7,
+    };
+    setViewState({
+      ...viewState,
+      ...destination,
+      transitionDuration: 700,
+    });
   };
 
   return (
@@ -104,6 +129,15 @@ function App() {
       <div className={styles.controls}>
         <button onClick={switchTo3DHeatmap}>3D District Map</button>
         <button onClick={switchToArcs}>Transmission Arcs</button>
+      </div>
+      <div className={styles.navigation}>
+        <button onClick={turnUp}>▲</button>
+        <br></br>
+        <button onClick={turnLeft}>◄</button>
+        <button onClick={turnDown}>▼</button>
+        <button onClick={turnRight}>►</button>
+        <br></br>
+        <p>Rotation: Right Click + Drag </p>
       </div>
     </div>
   );

@@ -9,8 +9,8 @@ function App() {
   const [viewState, setViewState] = React.useState({
     latitude: 20.5937,
     longitude: 78.9629,
-    zoom: 4,
-    pitch: 45,
+    zoom: 4.3,
+    pitch: 50,
     bearing: 10,
   });
 
@@ -37,19 +37,41 @@ function App() {
 
   const switchTo3DHeatmap = () => {
     if (type != "heatmap") {
+      const destination = {
+        latitude: 20.5937,
+        longitude: 78.9629,
+        zoom: 4.3,
+        pitch: 50,
+        bearing: 10,
+      };
       setPatients(heatMapData);
       setParameters({});
       setType("heatmap");
+      setViewState({
+        ...viewState,
+        ...destination,
+        transitionDuration: 2000,
+        transitionInterpolator: new FlyToInterpolator(),
+      });
     }
   };
   const switchToArcs = () => {
     if (type != "arc") {
+      const destination = {
+        latitude: 20.5937,
+        longitude: 75.9064,
+        zoom: 4.3,
+        pitch: 60,
+        bearing: -30,
+      };
       setPatients(arcData);
-      setParameters({
-        blendFunc: [GL.SRC_ALPHA, GL.ONE, GL.ONE_MINUS_DST_ALPHA, GL.ONE],
-        blendEquation: GL.FUNC_ADD,
-      });
       setType("arc");
+      setViewState({
+        ...viewState,
+        ...destination,
+        transitionDuration: 2000,
+        transitionInterpolator: new FlyToInterpolator(),
+      });
     }
   };
 
@@ -80,9 +102,8 @@ function App() {
         type={type}
       />
       <div className={styles.controls}>
-        <button onClick={switchTo3DHeatmap}>3D Heatmap</button>
-        <button onClick={switchToArcs}>Arcs</button>
-        <button onMouseDown={changeBearing}>Left</button>
+        <button onClick={switchTo3DHeatmap}>3D District Map</button>
+        <button onClick={switchToArcs}>Transmission Arcs</button>
       </div>
     </div>
   );

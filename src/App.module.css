@@ -29,4 +29,5 @@
 .controls > button:active {
   background-color: #fff;
   color: #222;
+  outline: 0;
 }

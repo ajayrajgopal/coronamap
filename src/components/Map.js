@@ -20,6 +20,11 @@ export default function Map({
     x: 0,
     y: 0,
   });
+  const toggleElevation = () => {
+    if (elevate == false) {
+      setElevate(true);
+    }
+  };
   const ambientLight = new AmbientLight({
     color: [255, 255, 255],
     intensity: 1.0,
@@ -72,11 +77,7 @@ export default function Map({
       </div>
     );
   }
-  const toggleElevation = () => {
-    setElevate(true);
-  };
   var layers = [];
-  var elevationScale = elevate ? 2500 : 0;
   if (type == "heatmap") {
     layers = [
       new HexagonLayer({
@@ -84,7 +85,7 @@ export default function Map({
         data: patients,
         extruded: true,
         pickable: true,
-        elevationScale: elevationScale,
+        elevationScale: elevate ? 2500 : 0,
         elevationRange: [0, 500],
         autoHighlight: true,
         radius: 6000,
@@ -95,7 +96,7 @@ export default function Map({
           return d.position;
         },
         getColorValue: (points) => {
-          return 3;
+          return parseInt(points[0].cases);
         },
         onHover: (info) => {
           if (info.object !== null) {
@@ -147,7 +148,7 @@ export default function Map({
       height={height}
       viewState={viewState}
       onViewStateChange={onViewStateChange}
-      onLoad={setElevate(true)}
+      onLoad={toggleElevation}
       mapStyle="mapbox://styles/mapbox/dark-v10"
       mapboxApiAccessToken="pk.eyJ1IjoiYWpheXJhamdvcGFsIiwiYSI6ImNrMGphZzlkdjA1cDAzb3JheThvOHdqYTIifQ.kbO-Ok19Tu-0qg2FIVBt6Q"
     >

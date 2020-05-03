@@ -4,6 +4,13 @@ import Map from "./components/Map";
 import { FlyToInterpolator } from "react-map-gl";
 import { csv } from "d3";
 import Slider from "@material-ui/core/Slider";
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles({
+  root: {
+    color: "rgba(1, 152, 189, 1)",
+  },
+});
 
 function App() {
   const [viewState, setViewState] = React.useState({
@@ -13,6 +20,7 @@ function App() {
     pitch: 50,
     bearing: 10,
   });
+  const classes = useStyles();
 
   var [elevationEnabled, setElevationEnabled] = React.useState(false);
   const [range, setRange] = React.useState([0, 100]);
@@ -183,6 +191,9 @@ function App() {
             width={80}
             style={{ width: "80%" }}
             onChange={handleChange}
+            classes={{
+              root: classes.root,
+            }}
             className={styles.slider}
             valueLabelDisplay="auto"
             aria-labelledby="range-slider"

@@ -1,9 +1,9 @@
 import React from "react";
 import styles from "./App.module.css";
 import Map from "./components/Map";
-import { FlyToInterpolator, NavigationControl } from "react-map-gl";
+import { FlyToInterpolator } from "react-map-gl";
 import { csv } from "d3";
-import GL from "@luma.gl/constants";
+import Slider from "@material-ui/core/Slider";
 
 function App() {
   const [viewState, setViewState] = React.useState({
@@ -14,10 +14,16 @@ function App() {
     bearing: 10,
   });
 
+  var [elevationEnabled, setElevationEnabled] = React.useState(false);
+  const [range, setRange] = React.useState([0, 100]);
+
+  const handleChange = (event, newValue) => {
+    setRange(newValue);
+  };
   const heatMapData = csv("hexsample.csv", (d, id) => ({
     id,
     district: d["district"],
-    cases: d["cases"],
+    cases: +d["cases"],
     position: [+d["longitude"], +d["latitude"]],
   })).then((patients) =>
     patients.filter((d) => d.position[0] != null && d.position[1] != null)
@@ -32,51 +38,49 @@ function App() {
   );
   const handleChangeViewState = ({ viewState }) => setViewState(viewState);
   const [patients, setPatients] = React.useState(heatMapData);
-  const [parameters, setParameters] = React.useState({});
   const [type, setType] = React.useState("heatmap");
 
   const switchTo3DHeatmap = () => {
+    const destination = {
+      latitude: 20.5937,
+      longitude: 78.9629,
+      zoom: 4.3,
+      pitch: 50,
+      bearing: 10,
+    };
     if (type != "heatmap") {
-      const destination = {
-        latitude: 20.5937,
-        longitude: 78.9629,
-        zoom: 4.3,
-        pitch: 50,
-        bearing: 10,
-      };
       setPatients(heatMapData);
-      setParameters({});
       setType("heatmap");
-      setViewState({
-        ...viewState,
-        ...destination,
-        transitionDuration: 2000,
-        transitionInterpolator: new FlyToInterpolator(),
-      });
     }
+    setViewState({
+      ...viewState,
+      ...destination,
+      transitionDuration: 2000,
+      transitionInterpolator: new FlyToInterpolator(),
+    });
   };
   const switchToArcs = () => {
+    const destination = {
+      latitude: 20.5937,
+      longitude: 75.9064,
+      zoom: 4.3,
+      pitch: 60,
+      bearing: -30,
+    };
     if (type != "arc") {
-      const destination = {
-        latitude: 20.5937,
-        longitude: 75.9064,
-        zoom: 4.3,
-        pitch: 60,
-        bearing: -30,
-      };
       setPatients(arcData);
       setType("arc");
-      setViewState({
-        ...viewState,
-        ...destination,
-        transitionDuration: 2000,
-        transitionInterpolator: new FlyToInterpolator(),
-      });
     }
+    setViewState({
+      ...viewState,
+      ...destination,
+      transitionDuration: "2000",
+      transitionInterpolator: new FlyToInterpolator(),
+    });
   };
   const turnLeft = () => {
     const destination = {
-      bearing: viewState.bearing + 7,
+      bearing: viewState.bearing + 10,
     };
     setViewState({
       ...viewState,
@@ -86,7 +90,7 @@ function App() {
   };
   const turnRight = () => {
     const destination = {
-      bearing: viewState.bearing - 7,
+      bearing: viewState.bearing - 10,
     };
     setViewState({
       ...viewState,
@@ -96,7 +100,7 @@ function App() {
   };
   const turnDown = () => {
     const destination = {
-      pitch: viewState.pitch + 7,
+      pitch: viewState.pitch + 10,
     };
     setViewState({
       ...viewState,
@@ -106,13 +110,16 @@ function App() {
   };
   const turnUp = () => {
     const destination = {
-      pitch: viewState.pitch - 7,
+      pitch: viewState.pitch - 10,
     };
     setViewState({
       ...viewState,
       ...destination,
       transitionDuration: 700,
     });
+  };
+  const toggleElevation = () => {
+    setElevationEnabled(!elevationEnabled);
   };
 
   return (
@@ -123,22 +130,83 @@ function App() {
         viewState={viewState}
         onViewStateChange={handleChangeViewState}
         patients={patients}
-        parameters={parameters}
         type={type}
+        elevationEnabled={elevationEnabled}
+        toggleElevation={toggleElevation}
+        range={range}
       />
-      <div className={styles.controls}>
+      <div
+        className={styles.logo}
+        align="center"
+        style={{
+          visibility: elevationEnabled ? "hidden" : "visible",
+        }}
+      >
+        <lottie-player
+          src="https://assets6.lottiefiles.com/packages/lf20_0r0csU.json"
+          background="transparent"
+          speed="1.5"
+          style={{
+            zIndex: 10000,
+            width: "200px",
+            height: "200px",
+            position: "absolute" /*it can be fixed too*/,
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            margin: "auto",
+          }}
+          hover
+          loop
+          autoplay
+        ></lottie-player>
+      </div>
+      <div
+        className={styles.controls}
+        style={{ visibility: elevationEnabled ? "visible" : "hidden" }}
+      >
         <button onClick={switchTo3DHeatmap}>3D District Map</button>
         <button onClick={switchToArcs}>Transmission Arcs</button>
+        <div
+          className={styles.filter}
+          style={{
+            visibility:
+              type == "heatmap" && elevationEnabled ? "visible" : "hidden",
+          }}
+        >
+          Percentile Filter
+          <Slider
+            value={range}
+            min={0}
+            max={100}
+            width={80}
+            style={{ width: "80%" }}
+            onChange={handleChange}
+            className={styles.slider}
+            valueLabelDisplay="auto"
+            aria-labelledby="range-slider"
+          />
+        </div>
       </div>
-      <div className={styles.navigation}>
-        <button onClick={turnUp}>▲</button>
-        <br></br>
-        <button onClick={turnLeft}>◄</button>
-        <button onClick={turnDown}>▼</button>
-        <button onClick={turnRight}>►</button>
-        <br></br>
+      <div></div>
+      <div
+        className={styles.navigation}
+        style={{ visibility: elevationEnabled ? "visible" : "hidden" }}
+      >
         <p>Rotation: Right Click + Drag </p>
+        <button onClick={turnUp}>&#8679;</button>
+        <br></br>
+        <button onClick={turnLeft}>&#8678;</button>
+        <button onClick={turnDown}>&#8681;</button>
+        <button onClick={turnRight}>&#8680;</button>
       </div>
+      <p
+        className={styles.dataNote}
+        style={{ visibility: elevationEnabled ? "visible" : "hidden" }}
+      >
+        * Data as on 30th April 2020
+      </p>
     </div>
   );
 }

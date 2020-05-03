@@ -1,5 +1,5 @@
 import React from "react";
-import MapGL, { NavigationControl } from "react-map-gl";
+import MapGL from "react-map-gl";
 import { DeckGL, HexagonLayer, ArcLayer } from "deck.gl";
 import { AmbientLight, PointLight, LightingEffect } from "@deck.gl/core";
 
@@ -9,21 +9,17 @@ export default function Map({
   viewState,
   patients,
   onViewStateChange,
-  parameters,
   type,
+  elevationEnabled,
+  toggleElevation,
+  range,
 }) {
-  var [elevate, setElevate] = React.useState(false);
   var [tooltipData, setTooltipData] = React.useState({
     text: "",
     display: "none",
     x: 0,
     y: 0,
   });
-  const toggleElevation = () => {
-    if (elevate == false) {
-      setElevate(true);
-    }
-  };
   const ambientLight = new AmbientLight({
     color: [255, 255, 255],
     intensity: 1.0,
@@ -84,24 +80,24 @@ export default function Map({
         data: patients,
         extruded: true,
         pickable: true,
-        elevationScale: elevate ? 2500 : 0,
+        elevationScale: elevationEnabled ? 2000 : 0,
         elevationRange: [0, 500],
         autoHighlight: true,
         radius: 6000,
         transitions: {
-          elevationScale: 1000,
+          elevationScale: 3000,
         },
         getPosition: (d) => {
           return d.position;
         },
         getColorValue: (points) => {
-          return parseInt(points[0].cases);
+          return points[0].cases;
         },
         onHover: (info) => {
           if (info.object !== null) {
             setTooltipData({
               district: info.object.points[0].district,
-              cases: parseInt(info.object.points[0].cases),
+              cases: info.object.points[0].cases,
               x: info.x,
               y: info.y,
               display: "block",
@@ -111,10 +107,13 @@ export default function Map({
           }
         },
         getElevationWeight: (d) => {
-          return parseInt(d.cases);
+          return d.cases;
         },
         coverage: 3,
-        upperPercentile: 100,
+        elevationLowerPercentile: range[0],
+        elevationUpperPercentile: range[1],
+        lowerPercentile: range[0],
+        upperPercentile: range[1],
         material: material,
         colorRange: [
           [1, 152, 189],
@@ -135,8 +134,8 @@ export default function Map({
         data: patients,
         getSourcePosition: (d) => d.position,
         getTargetPosition: (d) => d.fromPos,
-        getSourceColor: [204, 51, 255],
-        getTargetColor: [148, 0, 211],
+        getSourceColor: [125, 0, 238],
+        getTargetColor: [53, 0, 100],
         getWidth: 1.5,
       }),
     ];
@@ -151,12 +150,7 @@ export default function Map({
       mapStyle="mapbox://styles/mapbox/dark-v10"
       mapboxApiAccessToken="pk.eyJ1IjoiYWpheXJhamdvcGFsIiwiYSI6ImNrMGphZzlkdjA1cDAzb3JheThvOHdqYTIifQ.kbO-Ok19Tu-0qg2FIVBt6Q"
     >
-      <DeckGL
-        viewState={viewState}
-        effects={[lightingEffect]}
-        layers={layers}
-        parameters={parameters}
-      >
+      <DeckGL viewState={viewState} effects={[lightingEffect]} layers={layers}>
         {tooltip}
       </DeckGL>
     </MapGL>
